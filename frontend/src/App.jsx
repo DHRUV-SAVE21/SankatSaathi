@@ -13,6 +13,7 @@ import LandingPage from './pages/LandingPage';
 import ResourcesPage from './pages/ResourcesPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import Login from './components/Login';
+import IncidentReport from './components/IncidentReport';
 
 // Context
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -101,6 +102,7 @@ const MainApp = () => {
           <Routes>
             <Route path="/" element={<LandingPage onSystemInitialize={() => setIsSystemOnline(true)} />} />
             <Route path="/intelligence" element={<CrisisDashboard />} />
+            <Route path="/report" element={<IncidentReport />} />
             <Route path="/coordination" element={<ResourcesPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
           </Routes>
