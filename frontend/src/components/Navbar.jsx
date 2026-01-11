@@ -10,9 +10,9 @@ const Navbar = ({ isSystemOnline }) => {
     const location = useLocation();
 
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 h-[80px] bg-gradient-to-b from-black/80 to-transparent pointer-events-none flex flex-col">
-            {/* Top Status Bar */}
-            <div className="w-full h-[40px] border-b border-white/10 bg-glass-bg backdrop-blur-md pointer-events-auto flex items-center justify-between px-8">
+        <nav className="fixed top-0 left-0 right-0 z-50 h-auto lg:h-[80px] bg-gradient-to-b from-black/80 to-transparent pointer-events-none flex flex-col">
+            {/* Top Status Bar - Hidden on Mobile */}
+            <div className="hidden lg:flex w-full h-[40px] border-b border-white/10 bg-glass-bg backdrop-blur-md pointer-events-auto items-center justify-between px-8">
                 <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
                         <ShieldAlert className="w-4 h-4 text-crisis-red animate-pulse" />
@@ -37,7 +37,7 @@ const Navbar = ({ isSystemOnline }) => {
             </div>
 
             {/* Main Nav */}
-            <div className="flex-1 px-8 flex items-center justify-between pointer-events-auto backdrop-blur-sm bg-black/20">
+            <div className="flex-1 px-4 lg:px-8 flex flex-wrap lg:flex-nowrap items-center justify-between pointer-events-auto backdrop-blur-sm bg-black/20 py-2 lg:py-0">
                 <div className="flex items-center">
                     <Link
                         to="/"

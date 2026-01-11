@@ -53,7 +53,8 @@ export const CrisisMarkers = () => {
 
     React.useEffect(() => {
         // Fetch active crises to sync with dashboard
-        fetch('http://localhost:8000/crisis/active')
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        fetch(`${apiUrl}/crisis/active`)
             .then(res => res.json())
             .then(data => {
                 const crises = data.crises || [];

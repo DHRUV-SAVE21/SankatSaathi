@@ -24,7 +24,8 @@ const CrisisDashboard = () => {
 
         fetchActiveCrises();
 
-        const ws = new WebSocket('ws://localhost:8000/crisis/ws/dashboard');
+        const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000';
+        const ws = new WebSocket(`${wsUrl}/crisis/ws/dashboard`);
         ws.onopen = () => console.log('Connected to Crisis Dispatch');
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
@@ -54,7 +55,8 @@ const CrisisDashboard = () => {
 
     const fetchActiveCrises = async () => {
         try {
-            const res = await fetch('http://localhost:8000/crisis/active');
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const res = await fetch(`${apiUrl}/crisis/active`);
             const data = await res.json();
             setActiveCrises(data.crises || []);
         } catch (e) {
@@ -63,11 +65,11 @@ const CrisisDashboard = () => {
     };
 
     return (
-        <div className="h-full w-full bg-transparent pt-4 pb-8 px-8 overflow-hidden flex flex-col pointer-events-auto text-white">
-            <div className="flex-1 flex gap-8 overflow-hidden">
+        <div className="h-full w-full bg-transparent pt-4 pb-8 px-4 md:px-8 overflow-y-auto lg:overflow-hidden flex flex-col pointer-events-auto text-white">
+            <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 overflow-visible lg:overflow-hidden">
 
                 {/* LEFT PANEL: MAP & INCIDENT LIST */}
-                <div className="flex-[2] flex flex-col gap-4">
+                <div className="w-full lg:flex-[2] flex flex-col gap-4 min-h-[500px] lg:min-h-0">
                     {/* Map */}
                     <div className="flex-1 rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative">
                         <LiveIncidentMap
@@ -150,7 +152,8 @@ const CrisisDashboard = () => {
                             <div className="flex-1 overflow-y-auto custom-scrollbar">
                                 <IncidentReport onSuccess={async (newId) => {
                                     // Refresh data
-                                    const res = await fetch('http://localhost:8000/crisis/active');
+                                    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+                                    const res = await fetch(`${apiUrl}/crisis/active`);
                                     const data = await res.json();
                                     const freshList = data.crises || [];
                                     setActiveCrises(freshList);

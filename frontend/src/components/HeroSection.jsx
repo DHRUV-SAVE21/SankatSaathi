@@ -4,23 +4,23 @@ import { ArrowRight, Zap } from 'lucide-react';
 
 const HeroSection = ({ onInitialize }) => {
     return (
-        <div className="relative z-10 flex flex-col justify-center h-full max-w-[55%] pl-24 pointer-events-none">
+        <div className="relative z-10 flex flex-col justify-center h-full w-full lg:max-w-[55%] px-6 lg:pl-24 pointer-events-none pt-20 lg:pt-0">
             <div className="pointer-events-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
-                    className="flex items-center gap-4 mb-8"
+                    className="flex items-center gap-4 mb-4 lg:mb-8"
                 >
-                    <div className="h-[2px] w-16 bg-crisis-red"></div>
-                    <span className="text-crisis-red font-mono tracking-[0.3em] text-sm uppercase">Crisis Management Protocol</span>
+                    <div className="h-[2px] w-8 lg:w-16 bg-crisis-red"></div>
+                    <span className="text-crisis-red font-mono tracking-[0.3em] text-xs lg:text-sm uppercase">Crisis Management Protocol</span>
                 </motion.div>
 
                 <motion.h1
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
-                    className="text-7xl font-display font-bold text-white leading-[0.9] tracking-tighter mb-10"
+                    className="text-4xl md:text-5xl lg:text-7xl font-display font-bold text-white leading-[0.9] tracking-tighter mb-6 lg:mb-10"
                 >
                     PLANETARY <br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">RESILIENCE</span>
