@@ -20,7 +20,7 @@ const HeroSection = ({ onInitialize }) => {
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
-                    className="text-4xl md:text-5xl lg:text-7xl font-display font-bold text-white leading-[0.9] tracking-tighter mb-6 lg:mb-10"
+                    className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-display font-bold text-white leading-[0.9] tracking-tighter mb-6 lg:mb-10"
                 >
                     PLANETARY <br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">RESILIENCE</span>

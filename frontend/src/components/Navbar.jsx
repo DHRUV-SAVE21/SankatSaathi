@@ -9,6 +9,8 @@ const Navbar = ({ isSystemOnline }) => {
     const { user, profile, signOut } = useAuth();
     const location = useLocation();
 
+    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 h-auto lg:h-[80px] bg-gradient-to-b from-black/80 to-transparent pointer-events-none flex flex-col">
             {/* Top Status Bar - Hidden on Mobile */}
@@ -36,9 +38,17 @@ const Navbar = ({ isSystemOnline }) => {
                 </div>
             </div>
 
-            {/* Main Nav */}
-            <div className="flex-1 px-4 lg:px-8 flex flex-wrap lg:flex-nowrap items-center justify-between pointer-events-auto backdrop-blur-sm bg-black/20 py-2 lg:py-0">
-                <div className="flex items-center">
+            {/* Main Nav Container */}
+            <div className="flex-1 px-4 lg:px-8 flex items-center justify-between pointer-events-auto backdrop-blur-sm bg-black/80 lg:bg-black/20 py-3 lg:py-0 border-b border-white/10 lg:border-none">
+
+                {/* Mobile: Logo (Visible only on mobile/tablet where top bar is hidden) */}
+                <div className="flex lg:hidden items-center gap-2">
+                    <ShieldAlert className="w-5 h-5 text-crisis-red" />
+                    <span className="font-bold text-white tracking-wider">SANKAT<span className="text-crisis-red">SAATHI</span></span>
+                </div>
+
+                {/* Desktop: Navigation Links */}
+                <div className="hidden lg:flex items-center">
                     <Link
                         to="/"
                         className={clsx(
@@ -89,7 +99,8 @@ const Navbar = ({ isSystemOnline }) => {
                     </Link>
                 </div>
 
-                <div className="flex items-center gap-4">
+                {/* Desktop: Widgets & Profile */}
+                <div className="hidden lg:flex items-center gap-4">
                     {/* Widget 1 */}
                     <div className="flex flex-col items-end border-r border-white/10 pr-4">
                         <span className="text-[10px] text-gray-500 font-mono uppercase">Active Units</span>
@@ -123,7 +134,36 @@ const Navbar = ({ isSystemOnline }) => {
                         </button>
                     </div>
                 </div>
+
+                {/* Mobile: Hamburger Button */}
+                <button
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="lg:hidden text-white p-2"
+                >
+                    <div className="space-y-1.5">
+                        <span className={`block w-6 h-0.5 bg-white transition-all ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+                        <span className={`block w-6 h-0.5 bg-white transition-all ${isMenuOpen ? 'opacity-0' : ''}`}></span>
+                        <span className={`block w-6 h-0.5 bg-white transition-all ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+                    </div>
+                </button>
             </div>
+
+            {/* Mobile Menu Overlay */}
+            {isMenuOpen && (
+                <div className="lg:hidden bg-black/95 backdrop-blur-xl border-t border-white/10 pointer-events-auto">
+                    <div className="flex flex-col p-4 space-y-4">
+                        <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-lg font-display text-gray-300 hover:text-white">OVERVIEW</Link>
+                        <Link to="/intelligence" onClick={() => setIsMenuOpen(false)} className="text-lg font-display text-gray-300 hover:text-white">INCIDENTS</Link>
+                        <Link to="/coordination" onClick={() => setIsMenuOpen(false)} className="text-lg font-display text-gray-300 hover:text-white">COORDINATION</Link>
+                        <Link to="/analytics" onClick={() => setIsMenuOpen(false)} className="text-lg font-display text-gray-300 hover:text-white">ANALYTICS</Link>
+                        <div className="h-[1px] bg-white/10 my-2"></div>
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-400">User: {profile?.full_name || 'Agni'}</span>
+                            <button onClick={signOut} className="text-red-500 text-sm font-bold uppercase">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </nav>
     );
 };
