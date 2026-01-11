@@ -3,7 +3,10 @@ import { clsx } from 'clsx';
 import { ShieldAlert, Activity, Users, ChevronDown, UserCircle } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
-const Navbar = ({ user, signOut, isSystemOnline }) => {
+import { useAuth } from '../context/AuthContext';
+
+const Navbar = ({ isSystemOnline }) => {
+    const { user, profile, signOut } = useAuth();
     const location = useLocation();
 
     return (
@@ -102,7 +105,9 @@ const Navbar = ({ user, signOut, isSystemOnline }) => {
                     {/* Profile */}
                     <div className="flex items-center gap-3 pl-2 group cursor-pointer">
                         <div className="text-right">
-                            <div className="text-xs font-bold text-white group-hover:text-crisis-red transition-colors">COMMANDER</div>
+                            <div className="text-xs font-bold text-white group-hover:text-crisis-red transition-colors uppercase">
+                                {profile?.full_name || user?.user_metadata?.full_name || 'Agni'}
+                            </div>
                             <div className="text-[10px] text-gray-500 font-mono">ID: {user?.id?.slice(0, 6) || 'UNKNOWN'}</div>
                         </div>
                         <div className="relative">

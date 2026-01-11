@@ -7,6 +7,6 @@ python-multipart
 aiofiles
 python-jose[cryptography]
 passlib[bcrypt]
-python-multipart
 google-generativeai
 python-dotenv
+supabase

@@ -1,0 +1,54 @@
+
+[2026-01-11 18:27:54.387876] ERROR:
+Traceback (most recent call last):
+  File "D:\B. Tech\SankatSaathi\backend\crisis_dispatch.py", line 152, in create_crisis_alert
+    data = supabase.table("incidents").insert(new_incident).execute()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\neela\AppData\Roaming\Python\Python312\site-packages\postgrest\_sync\request_builder.py", line 70, in execute
+    raise APIError(r.json())
+postgrest.exceptions.APIError: {'code': 'PGRST205', 'details': None, 'hint': None, 'message': "Could not find the table 'public.incidents' in the schema cache"}
+
+[2026-01-11 18:30:40.127121] ERROR:
+Traceback (most recent call last):
+  File "D:\B. Tech\SankatSaathi\backend\crisis_dispatch.py", line 152, in create_crisis_alert
+    data = supabase.table("incidents").insert(new_incident).execute()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\neela\AppData\Roaming\Python\Python312\site-packages\postgrest\_sync\request_builder.py", line 70, in execute
+    raise APIError(r.json())
+postgrest.exceptions.APIError: {'code': '42501', 'details': None, 'hint': None, 'message': 'new row violates row-level security policy for table "incidents"'}
+
+[2026-01-11 18:34:23.383044] ERROR:
+Traceback (most recent call last):
+  File "D:\B. Tech\SankatSaathi\backend\crisis_dispatch.py", line 152, in create_crisis_alert
+    data = supabase.table("incidents").insert(new_incident).execute()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\neela\AppData\Roaming\Python\Python312\site-packages\postgrest\_sync\request_builder.py", line 70, in execute
+    raise APIError(r.json())
+postgrest.exceptions.APIError: {'code': '42501', 'details': None, 'hint': None, 'message': 'new row violates row-level security policy for table "incidents"'}
+
+[2026-01-11 18:45:53.386236] ERROR:
+Traceback (most recent call last):
+  File "D:\B. Tech\SankatSaathi\backend\crisis_dispatch.py", line 152, in create_crisis_alert
+    data = supabase.table("incidents").insert(new_incident).execute()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\neela\AppData\Roaming\Python\Python312\site-packages\postgrest\_sync\request_builder.py", line 70, in execute
+    raise APIError(r.json())
+postgrest.exceptions.APIError: {'code': '23503', 'details': 'Key is not present in table "profiles".', 'hint': None, 'message': 'insert or update on table "incidents" violates foreign key constraint "incidents_reporter_id_fkey"'}
+
+[2026-01-11 18:50:00.623699] ERROR:
+Traceback (most recent call last):
+  File "D:\B. Tech\SankatSaathi\backend\crisis_dispatch.py", line 152, in create_crisis_alert
+    data = supabase.table("incidents").insert(new_incident).execute()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\neela\AppData\Roaming\Python\Python312\site-packages\postgrest\_sync\request_builder.py", line 70, in execute
+    raise APIError(r.json())
+postgrest.exceptions.APIError: {'code': '23503', 'details': 'Key is not present in table "profiles".', 'hint': None, 'message': 'insert or update on table "incidents" violates foreign key constraint "incidents_reporter_id_fkey"'}
+
+[2026-01-11 18:55:09.818488] ERROR:
+Traceback (most recent call last):
+  File "D:\B. Tech\SankatSaathi\backend\crisis_dispatch.py", line 152, in create_crisis_alert
+    data = supabase.table("incidents").insert(new_incident).execute()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\neela\AppData\Roaming\Python\Python312\site-packages\postgrest\_sync\request_builder.py", line 70, in execute
+    raise APIError(r.json())
+postgrest.exceptions.APIError: {'code': '23503', 'details': 'Key is not present in table "profiles".', 'hint': None, 'message': 'insert or update on table "incidents" violates foreign key constraint "incidents_reporter_id_fkey"'}
