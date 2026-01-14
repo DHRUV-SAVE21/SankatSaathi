@@ -24,8 +24,8 @@ const CameraController = () => {
 
   useEffect(() => {
     // Target position based on route
-    const targetX = location.pathname === '/' ? 2.5 : 5;
-    const targetZ = location.pathname === '/' ? 5.0 : 8;
+    const targetX = location.pathname === '/landing' ? 2.5 : 5;
+    const targetZ = location.pathname === '/landing' ? 5.0 : 8;
 
     // Animate camera to new position
     let startX = camera.position.x;
@@ -127,7 +127,8 @@ const MainApp = () => {
         <div className="pointer-events-auto min-h-full">
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<LandingPage onSystemInitialize={() => setIsSystemOnline(true)} />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/landing" element={<LandingPage onSystemInitialize={() => setIsSystemOnline(true)} />} />
             <Route path="/login" element={user ? <Navigate to="/intelligence" /> : <Login />} />
 
             {/* Protected Routes */}
