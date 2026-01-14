@@ -18,9 +18,8 @@ from .twilio_service import send_emergency_sms
 
 # Hardcoded test numbers for Hackathon
 EMERGENCY_CONTACTS = [
-    "+917718883299", # Replace with actual registered Twilio numbers
-    "+91"
-]
+    os.getenv("TEST1_MOB_NO")
+]   
 
 from pathlib import Path
 
@@ -67,6 +66,10 @@ class AgencyResponse(BaseModel):
 # --- Realtime Management ---
 # Persistence is handled via Supabase direct.
 # WebSockets removed for Vercel Serverless compatibility.
+async def broadcast_to_dashboards(payload: dict):
+    """Placeholder for legacy realtime broadcasts."""
+    print(f"DEBUG: Broadcast (Legacy): {payload.get('type')}")
+    pass
 
 # --- Helper Functions ---
 
@@ -153,18 +156,29 @@ async def create_crisis_alert(
     else:
         raise HTTPException(status_code=500, detail="Database not initialized")
 
-    # 4. SMS Alerts to Nearby Contacts
-    for phone in EMERGENCY_CONTACTS:
-        # In a real app, we'd fetch the recipient's last location from DB.
-        # For testing, we assume they are within range if we want to test the trigger.
-        # Or you can hardcode a location to test the logic:
-        recipient_loc = (28.6139, 77.2090) # Example: New Delhi
-        incident_loc = (latitude, longitude)
-        
-        dist = geodesic(recipient_loc, incident_loc).km
-        if dist <= 5:
-            msg = f"🚨 SankatSaathi ALERT: {title} reported near you ({dist:.1f}km). Type: {crisis_type}. Severity: {final_severity}. Stay safe!"
-            send_emergency_sms(phone, msg)
+    # 4. SMS Alerts to Nearby Users (Dynamic)
+    # This checks EVERY user in the database who has a phone number.
+    # If their CURRENT location (from Broadcast SOS) is within 5km of the incident, they get an SMS.
+    if supabase:
+        try:
+            # Fetch users who have phone numbers and locations
+            res = supabase.table("profiles").select("full_name, phone_number, last_latitude, last_longitude").not_.is_("phone_number", "null").execute()
+            
+            for profile in res.data:
+                p_lat = profile.get("last_latitude")
+                p_lon = profile.get("last_longitude")
+                phone = profile.get("phone_number")
+                
+                if p_lat and p_lon and phone:
+                    recipient_loc = (p_lat, p_lon)
+                    incident_loc = (latitude, longitude)
+                    dist = geodesic(recipient_loc, incident_loc).km
+                    
+                    if dist <= 5:
+                        msg = f"🚨 SankatSaathi ALERT: {title} reported near you ({dist:.1f}km). Type: {crisis_type}. Severity: {final_severity}. Stay safe!"
+                        send_emergency_sms(phone, msg)
+        except Exception as e:
+            print(f"SMS Dispatch Error: {e}")
 
     return {
         "message": "Incident Reported & Alerts Sent",
