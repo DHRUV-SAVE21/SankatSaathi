@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, Activity, Volume2 } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import LiveIncidentMap from './LiveIncidentMap';
 import IncidentChat from './IncidentChat';
 import IncidentReport from './IncidentReport';
+import { AlertTriangle, Activity, Volume2, Bell, CheckCircle } from 'lucide-react';
+
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+};
 
 const CrisisDashboard = () => {
     const { user } = useAuth();
@@ -24,22 +37,42 @@ const CrisisDashboard = () => {
 
         fetchActiveCrises();
 
-        const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000';
-        const ws = new WebSocket(`${wsUrl}/crisis/ws/dashboard`);
-        ws.onopen = () => console.log('Connected to Crisis Dispatch');
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.type === 'INITIAL_STATE') {
-                setActiveCrises(data.active_crises);
-                setAgencies(data.agencies);
-            } else if (data.type === 'NEW_CRISIS') {
-                setActiveCrises(prev => [...prev, data.crisis]);
-            } else if (data.type === 'AGENCY_RESPONSE') {
-                setActiveCrises(prev => prev.map(c => c.id === data.crisis_id ? data.crisis : c));
-            }
-        };
+        // --- SUPABASE REALTIME SUBSCRIPTION (Replaces WebSocket) ---
+        const channel = supabase
+            .channel('public:incidents')
+            .on(
+                'postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'incidents' },
+                (payload) => {
+                    const newIncident = payload.new;
+                    setActiveCrises(prev => {
+                        if (prev.find(i => i.id === newIncident.id)) return prev;
+                        return [...prev, newIncident];
+                    });
 
-        // Listen for internal updates from components
+                    if (userLocation) {
+                        const dist = calculateDistance(
+                            userLocation.latitude,
+                            userLocation.longitude,
+                            newIncident.latitude,
+                            newIncident.longitude
+                        );
+                        if (dist <= 5) {
+                            new Audio('/alert.mp3').play().catch(() => { });
+                            alert(`🚨 PROXIMITY ALERT: ${newIncident.title} reported within ${dist.toFixed(1)}km!`);
+                        }
+                    }
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'incidents' },
+                (payload) => {
+                    setActiveCrises(prev => prev.map(c => c.id === payload.new.id ? payload.new : c));
+                }
+            )
+            .subscribe();
+
         const handleMessage = (event) => {
             if (event.data === 'incident-reported') {
                 fetchActiveCrises();
@@ -48,19 +81,43 @@ const CrisisDashboard = () => {
         window.addEventListener('message', handleMessage);
 
         return () => {
-            ws.close();
+            supabase.removeChannel(channel);
             window.removeEventListener('message', handleMessage);
         };
-    }, []);
+    }, [userLocation]);
 
     const fetchActiveCrises = async () => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const apiUrl = import.meta.env.VITE_API_URL || '/api';
             const res = await fetch(`${apiUrl}/crisis/active`);
             const data = await res.json();
             setActiveCrises(data.crises || []);
         } catch (e) {
             console.error("Failed to fetch crises", e);
+        }
+    };
+
+    const handleAccept = async (incidentId) => {
+        if (!user) return;
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || '/api';
+            const formData = new FormData();
+            formData.append('responder_id', user.id);
+
+            const res = await fetch(`${apiUrl}/crisis/${incidentId}/accept`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setSelectedIncident(data.incident);
+                fetchActiveCrises();
+            } else {
+                alert("Failed to accept incident");
+            }
+        } catch (err) {
+            console.error(err);
         }
     };
 
@@ -132,7 +189,22 @@ const CrisisDashboard = () => {
                                 <div className="flex gap-2 text-[10px] font-mono uppercase">
                                     <span className="bg-gray-800 px-2 py-1 rounded text-red-400">Sev: {selectedIncident.severity}</span>
                                     <span className="bg-gray-800 px-2 py-1 rounded text-blue-400">Status: {selectedIncident.status}</span>
+                                    {userLocation && (
+                                        <span className="bg-gray-800 px-2 py-1 rounded text-green-400">
+                                            Dist: {calculateDistance(userLocation.latitude, userLocation.longitude, selectedIncident.latitude, selectedIncident.longitude).toFixed(1)}km
+                                        </span>
+                                    )}
                                 </div>
+
+                                {selectedIncident.status === 'pending' && (
+                                    <button
+                                        onClick={() => handleAccept(selectedIncident.id)}
+                                        className="mt-4 w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-lg flex items-center justify-center gap-2 animate-pulse"
+                                    >
+                                        <CheckCircle size={18} /> INITIALIZE RESPONSE
+                                    </button>
+                                )}
+
                                 {selectedIncident.ai_analysis && (
                                     <div className="mt-3 bg-blue-900/20 p-2 rounded border border-blue-500/30 text-xs">
                                         <strong className="text-blue-400 block mb-1">AI Tactical Analysis:</strong>
@@ -152,7 +224,7 @@ const CrisisDashboard = () => {
                             <div className="flex-1 overflow-y-auto custom-scrollbar">
                                 <IncidentReport onSuccess={async (newId) => {
                                     // Refresh data
-                                    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+                                    const apiUrl = import.meta.env.VITE_API_URL || '/api';
                                     const res = await fetch(`${apiUrl}/crisis/active`);
                                     const data = await res.json();
                                     const freshList = data.crises || [];
