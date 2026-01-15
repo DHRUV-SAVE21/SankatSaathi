@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 
 # Vercel Compatibility: Add the current directory to sys.path
-# This handles cases where Vercel runs the script from the root or the backend folder.
 current_dir = Path(__file__).parent.resolve()
 if str(current_dir) not in sys.path:
     sys.path.insert(0, str(current_dir))
@@ -14,10 +13,8 @@ if str(current_dir) not in sys.path:
 try:
     from Feature1.crisis_dispatch import router as crisis_router
 except ImportError as e:
-    # If the error is NOT about missing 'Feature1', it's a nested dependency error
     if "Feature1" not in str(e):
         raise e
-    # Fallback for different execution contexts
     try:
         from backend.Feature1.crisis_dispatch import router as crisis_router
     except ImportError:
@@ -39,20 +36,18 @@ app.add_middleware(
 )
 
 # --- ROUTING ---
-# We use a single inclusion to avoid route collisions.
-# The external Vercel routing (vercel.json) handles the /api prefix.
-# However, for local dev consistency, we can include it with prefix as well.
 app.include_router(crisis_router, prefix="/api")
-app.include_router(crisis_router) # Fallback if /api is stripped by proxy
+app.include_router(crisis_router) # Fallback
 
-# Feature 2: News Router
 # Feature 2: News Router
 try:
-    from Feature2_news.news_router import router as news_router
-except ImportError:
-    from backend.Feature2_news.news_router import router as news_router
-
-app.include_router(news_router, prefix="/api")
+    try:
+        from news_service.news_router import router as news_router
+    except ImportError:
+        from backend.news_service.news_router import router as news_router
+    app.include_router(news_router, prefix="/api")
+except Exception as e:
+    print(f"WARNING: News Router could not be loaded: {e}")
 
 @app.get("/")
 @app.get("/api")

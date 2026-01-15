@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
+import { supabase } from '../lib/supabaseClient';
 
 function Marker({ position, type, label }) {
     const ref = useRef();
@@ -52,47 +53,35 @@ export const CrisisMarkers = () => {
     const [incidents, setIncidents] = React.useState([]);
 
     React.useEffect(() => {
+        // 1. Initial Load
         const fetchMarkers = async () => {
             const apiUrl = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, "");
-            console.log(`Fetching markers from: ${apiUrl}/crisis/active`);
-
             try {
                 const url = `${apiUrl.startsWith('http') ? apiUrl : '/' + apiUrl.replace(/^\//, '')}/crisis/active`;
                 const res = await fetch(url);
-                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-
                 const data = await res.json();
-                const crises = data.crises || [];
-
-                const mapped = crises.map(c => ({
-                    id: c.id,
-                    lat: c.latitude,
-                    lon: c.longitude,
-                    type: c.severity,
-                    label: c.title
+                const mapped = (data.crises || []).map(c => ({
+                    id: c.id, lat: c.latitude, lon: c.longitude, type: c.severity, label: c.title
                 }));
-
-                if (mapped.length > 0) {
-                    setIncidents(mapped);
-                } else {
-                    console.warn("No active crises found on server.");
-                    // Optional: keep empty or set defaults only if truly needed
-                }
+                setIncidents(mapped);
             } catch (err) {
                 console.error("FAILED to fetch markers:", err);
-                console.error("Ensure Backend is running on port 8000");
-                // Fallback defaults for demo if backend is down
-                setIncidents([
-                    { id: 'demo-1', lat: 40.7128, lon: -74.0060, type: 'critical', label: 'Backend Offline (Demo)' },
-                    { id: 'demo-2', lat: 28.6139, lon: 77.2090, type: 'warning', label: 'Check Console' }
-                ]);
             }
         };
-
         fetchMarkers();
-        // Poll every 10 seconds
-        const interval = setInterval(fetchMarkers, 10000);
-        return () => clearInterval(interval);
+
+        // 2. Realtime Subscription
+        const channel = supabase
+            .channel('realtime_incidents')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'incidents' }, (payload) => {
+                console.log('Realtime change detected:', payload);
+                fetchMarkers(); // Refresh data on any change
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, []);
 
     return (

@@ -36,7 +36,7 @@ const EarthScene = ({ setRotation }) => {
         <group ref={groupRef} rotation={[0, 0, 23.5 * Math.PI / 180]} >
             {/* Atmosphere Glow */}
             <mesh scale={[1.02, 1.02, 1.02]}>
-                <sphereGeometry args={[1, 64, 64]} />
+                <sphereGeometry args={[1, 32, 32]} />
                 <meshBasicMaterial
                     color="#4db5ff"
                     transparent
@@ -48,7 +48,7 @@ const EarthScene = ({ setRotation }) => {
 
             {/* Clouds Layer */}
             <mesh ref={cloudsRef} scale={[1.005, 1.005, 1.005]}>
-                <sphereGeometry args={[1, 64, 64]} />
+                <sphereGeometry args={[1, 32, 32]} />
                 <meshStandardMaterial
                     map={cloudsMap}
                     transparent={true}
@@ -61,7 +61,7 @@ const EarthScene = ({ setRotation }) => {
 
             {/* Earth Sphere - Using Phong for Specular Map support */}
             <mesh ref={earthRef}>
-                <sphereGeometry args={[1, 64, 64]} />
+                <sphereGeometry args={[1, 32, 32]} />
                 <meshPhongMaterial
                     map={colorMap}
                     normalMap={normalMap}
