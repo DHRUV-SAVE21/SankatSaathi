@@ -9,7 +9,7 @@ import EarthScene from './components/EarthScene';
 import { CrisisMarkers } from './components/CrisisMarkers';
 import CrisisDashboard from './components/CrisisDashboard';
 import Navbar from './components/Navbar';
-import LandingPage from './pages/LandingPage';
+import LandingPage from './components/LandingPage';
 import ResourcesPage from './pages/ResourcesPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import Login from './components/Login';
