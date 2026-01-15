@@ -10,5 +10,4 @@ passlib[bcrypt]
 google-generativeai
 python-dotenv
 supabase
-twilio
 pywebpush
