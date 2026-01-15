@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
-import { supabase } from '../lib/supabaseClient';
+import { getApiEndpoint } from '../lib/api';
 
 function Marker({ position, type, label }) {
     const ref = useRef();
@@ -53,35 +53,40 @@ export const CrisisMarkers = () => {
     const [incidents, setIncidents] = React.useState([]);
 
     React.useEffect(() => {
-        // 1. Initial Load
         const fetchMarkers = async () => {
-            const apiUrl = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, "");
+            const url = getApiEndpoint('crisis/active');
+            console.log(`Fetching markers from: ${url}`);
+
             try {
-                const url = `${apiUrl.startsWith('http') ? apiUrl : '/' + apiUrl.replace(/^\//, '')}/crisis/active`;
                 const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
                 const data = await res.json();
-                const mapped = (data.crises || []).map(c => ({
-                    id: c.id, lat: c.latitude, lon: c.longitude, type: c.severity, label: c.title
+                const crises = data.crises || [];
+
+                const mapped = crises.map(c => ({
+                    id: c.id,
+                    lat: c.latitude,
+                    lon: c.longitude,
+                    type: c.severity,
+                    label: c.title
                 }));
-                setIncidents(mapped);
+
+                if (mapped.length > 0) {
+                    setIncidents(mapped);
+                } else {
+                    console.warn("No active crises found on server.");
+                }
             } catch (err) {
                 console.error("FAILED to fetch markers:", err);
+                console.error("Ensure Backend is running");
             }
         };
+
         fetchMarkers();
-
-        // 2. Realtime Subscription
-        const channel = supabase
-            .channel('realtime_incidents')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'incidents' }, (payload) => {
-                console.log('Realtime change detected:', payload);
-                fetchMarkers(); // Refresh data on any change
-            })
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
+        // Poll every 10 seconds
+        const interval = setInterval(fetchMarkers, 10000);
+        return () => clearInterval(interval);
     }, []);
 
     return (

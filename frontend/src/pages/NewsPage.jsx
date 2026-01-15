@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Globe, AlertTriangle, Radio, Activity, Terminal } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { getApiEndpoint } from '../lib/api';
 
 const NewsPage = () => {
     const { user } = useAuth();
@@ -33,10 +34,9 @@ const NewsPage = () => {
 
         try {
             // 1. Trigger Fetch (POST)
-            const apiUrl = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, "");
-
             if (forceRefresh) {
-                const res = await fetch(`${apiUrl}/news/fetch-news`, {
+                const url = getApiEndpoint('news/fetch-news');
+                const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ location: searchLocation })
@@ -48,8 +48,8 @@ const NewsPage = () => {
             }
 
             // 2. Get Data (GET)
-            // We can add coordinates here later if we want distance sorting
-            const getRes = await fetch(`${apiUrl}/news?location=${encodeURIComponent(searchLocation)}`);
+            const url = getApiEndpoint(`news?location=${encodeURIComponent(searchLocation)}`);
+            const getRes = await fetch(url);
             if (!getRes.ok) throw new Error("Data retrieval failed");
 
             const data = await getRes.json();

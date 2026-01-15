@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
+import { getApiEndpoint } from '../lib/api';
 import LiveIncidentMap from './LiveIncidentMap';
 import IncidentChat from './IncidentChat';
 import IncidentReport from './IncidentReport';
@@ -164,8 +165,8 @@ const CrisisDashboard = () => {
 
     const fetchActiveCrises = async () => {
         try {
-            const apiUrl = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, "");
-            const res = await fetch(`${apiUrl.startsWith('http') ? apiUrl : '/' + apiUrl.replace(/^\//, '')}/crisis/active`);
+            const url = getApiEndpoint('crisis/active');
+            const res = await fetch(url);
             const data = await res.json();
             setActiveCrises(data.crises || []);
         } catch (e) {
@@ -176,11 +177,10 @@ const CrisisDashboard = () => {
     const handleAccept = async (incidentId) => {
         if (!user) return;
         try {
-            const apiUrl = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, "");
             const formData = new FormData();
             formData.append('responder_id', user.id);
 
-            const url = `${apiUrl.startsWith('http') ? apiUrl : '/' + apiUrl.replace(/^\//, '')}/crisis/${incidentId}/accept`;
+            const url = getApiEndpoint(`crisis/${incidentId}/accept`);
             const res = await fetch(url, {
                 method: 'POST',
                 body: formData
@@ -310,15 +310,11 @@ const CrisisDashboard = () => {
                         <div className="flex-1 overflow-y-auto custom-scrollbar">
                             <IncidentReport onSuccess={async (newId) => {
                                 // Refresh data
-                                const apiUrl = import.meta.env.VITE_API_URL || '/api';
-                                const res = await fetch(`${apiUrl}/crisis/active`);
-                                const data = await res.json();
-                                const freshList = data.crises || [];
-                                setActiveCrises(freshList);
+                                await fetchActiveCrises();
 
                                 // Select new incident
                                 if (newId) {
-                                    const match = freshList.find(i => i.id === newId);
+                                    const match = activeCrises.find(i => i.id === newId);
                                     if (match) setSelectedIncident(match);
                                 }
                                 setViewMode('details');

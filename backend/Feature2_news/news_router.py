@@ -334,3 +334,55 @@ async def get_news(
     finally:
         if 'conn' in locals() and conn:
             conn.close()
+
+
+@router.get("/categories")
+async def get_categories():
+    """Get all available disaster categories."""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            raise HTTPException(status_code=500, detail="Database connection failed")
+        
+        cursor = conn.cursor()
+        cursor.execute("SELECT DISTINCT category FROM disaster_news WHERE category IS NOT NULL ORDER BY category")
+        rows = cursor.fetchall()
+        conn.close()
+        
+        categories = [row['category'] for row in rows]
+        return {"categories": categories}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/stats")
+async def get_stats():
+    """Get news statistics."""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            raise HTTPException(status_code=500, detail="Database connection failed")
+        
+        cursor = conn.cursor()
+        
+        # Total articles
+        cursor.execute("SELECT COUNT(*) as count FROM disaster_news")
+        total = cursor.fetchone()['count']
+        
+        # Latest article date
+        cursor.execute("SELECT MAX(published_at) as latest FROM disaster_news")
+        latest = cursor.fetchone()['latest']
+        
+        # Category breakdown
+        cursor.execute("SELECT category, COUNT(*) as count FROM disaster_news GROUP BY category ORDER BY count DESC")
+        category_rows = cursor.fetchall()
+        category_breakdown = {row['category']: row['count'] for row in category_rows}
+        
+        conn.close()
+        
+        return {
+            "total_articles": total,
+            "latest_article_date": latest,
+            "category_breakdown": category_breakdown
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

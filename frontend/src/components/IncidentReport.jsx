@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { supabase } from '../lib/supabaseClient'; // Access shared client if exists, or local import
-// If 'lib/supabase' doesn't exist, we'll need to create it or access env directly. 
-// Assuming useAuth provides user.
-
+import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { getApiEndpoint } from '../lib/api';
 
 const IncidentReport = ({ onSuccess }) => {
     const { user } = useAuth();
@@ -64,8 +62,8 @@ const IncidentReport = ({ onSuccess }) => {
 
         try {
             // Point to FastAPI Backend
-            const apiUrl = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, "");
-            const response = await fetch(`${apiUrl.startsWith('http') ? apiUrl : '/' + apiUrl.replace(/^\//, '')}/crisis/alert`, {
+            const url = getApiEndpoint('crisis/alert');
+            const response = await fetch(url, {
                 method: 'POST',
                 body: formDataToSend
             });
