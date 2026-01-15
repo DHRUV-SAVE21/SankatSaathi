@@ -23,8 +23,8 @@ const Navbar = ({ isSystemOnline }) => {
             <div className="hidden lg:flex w-full h-[40px] border-b border-white/10 bg-glass-bg backdrop-blur-md pointer-events-auto items-center justify-between px-8">
                 <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
-                        <ShieldAlert className="w-4 h-4 text-crisis-red animate-pulse" />
-                        <span className="text-sm font-display font-bold tracking-wider text-white">SANKAT<span className="text-crisis-red">SAATHI</span></span>
+                        <img src="/logo.jpg" alt="Logo" className="w-8 h-8 rounded-full border border-crisis-red/50 shadow-[0_0_10px_#FF3B30]" />
+                        <span className="text-sm font-display font-bold tracking-wider text-white px-2">SANKAT<span className="text-crisis-red">SAATHI</span></span>
                     </div>
                     <div className="h-4 w-[1px] bg-white/10"></div>
                     <span className="text-[10px] font-mono text-gray-400 tracking-[0.2em] uppercase">Global Response System v2.0</span>
@@ -49,7 +49,7 @@ const Navbar = ({ isSystemOnline }) => {
 
                 {/* Mobile: Logo (Visible only on mobile/tablet where top bar is hidden) */}
                 <div className="flex lg:hidden items-center gap-2">
-                    <ShieldAlert className="w-5 h-5 text-crisis-red" />
+                    <img src="/logo.jpg" alt="Logo" className="w-8 h-8 rounded-full border border-crisis-red/30" />
                     <span className="font-bold text-white tracking-wider">SANKAT<span className="text-crisis-red">SAATHI</span></span>
                 </div>
 

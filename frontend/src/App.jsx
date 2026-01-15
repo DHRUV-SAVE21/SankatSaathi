@@ -264,7 +264,7 @@ const MainApp = () => {
               <EarthScene setRotation={setRotation} />
               <CrisisMarkers />
             </group>
-            <Stars radius={200} depth={50} count={3000} factor={3} saturation={0} fade speed={0.5} />
+            <Stars radius={200} depth={50} count={1500} factor={3} saturation={0} fade speed={0.5} />
           </Suspense>
 
           <OrbitControls
